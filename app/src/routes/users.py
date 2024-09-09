@@ -274,7 +274,8 @@ async def get_cars(current_user: User = Depends(auth_service.get_current_user),
 @router.get('/me/balance', response_model=BalanceResponse)
 async def get_balance(current_user: User = Depends(auth_service.get_current_user),
                       db: Session = Depends(get_db)):
-    return current_user
+    user = await repository_users.get_user_by_email(current_user.email, db)
+    return user
 
 
 @router.patch('/me/balance/change', response_model=BalanceResponse)

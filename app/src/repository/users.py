@@ -210,6 +210,7 @@ async def change_user_balance(money: float, user: User, db: Session) -> User:
     Returns:
         [User]: Updated user.
     """
+    user = db.query(User).filter(User.email == user.email).first()
     user.balance = user.balance + money
     db.commit()
     return user

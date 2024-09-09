@@ -11,7 +11,7 @@ from app.src.repository import rates as repository_rates
 from app.src.schemas import EntryResponse
 from app.src.services.auth import RoleChecker
 from app.src.database.models import User
-from app.src.ocr.ver3.CarPlateRecognition import main
+from app.src.ocr.ocr_license_plate import main_ocr
 
 router = APIRouter(prefix="/parking", tags=["parking"])
 
@@ -20,8 +20,8 @@ router = APIRouter(prefix="/parking", tags=["parking"])
 async def create_entry(car_img: UploadFile = File(...),
                        db: Session = Depends(get_db)):
     # camera make photo
-    car_license = main(car_img.filename)
-    car = await get_car_by_license(car_license, db)
+    car_license = main_ocr(car_img.file)
+    car = await get_car_by_license(car_license.strip(), db)
 
     if car is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No car in DB")
@@ -52,8 +52,8 @@ async def close_entry(car_img: UploadFile = File(...),
     #     camera make photo
     #     call def with model, to take car license
     if not car_license:
-        car_license = main(car_img.filename)
-    car = await get_car_by_license(car_license, db)
+        car_license = main_ocr(car_img.file)
+    car = await get_car_by_license(car_license.strip(), db)
 
     if car is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No car found")
